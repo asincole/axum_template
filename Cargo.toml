@@ -15,6 +15,10 @@ tower-http = { version = "0.6.2", features = ["cors", "compression-br", "compres
 tracing = "0.1.41"
 tracing-bunyan-formatter = "=0.3.10"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt"] }
+ulid = { version = "1.2.1", features = ["postgres", "serde"] }
+utoipa = { version = "5.3.1", features = ["axum_extras", "uuid", "chrono", "debug", "ulid"] }
+utoipa-axum = "0.2.0"
+utoipa-swagger-ui = { version = "9.0.0", features = ["axum", "cache", "debug", "reqwest"] }
 
 [profile.dev]
 rpath = true
