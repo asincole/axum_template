@@ -6,6 +6,9 @@ use axum::Json;
 use std::sync::Arc;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
+#[cfg(test)]
+mod user_tests;
+
 pub const USERS_TAG: &str = "users";
 
 pub(crate) fn router() -> OpenApiRouter<Arc<AppState>> {
