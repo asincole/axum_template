@@ -1,37 +1,69 @@
+use crate::routes::config::{configure_cors, configure_swagger};
+use crate::{api_config::AppState, utils::app_error::AppError};
 use axum::{
-    Router,
-    http::{
-        Method,
-        header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
-    },
     response::{Html, IntoResponse},
     routing::get,
+    Router,
 };
 use std::{sync::Arc, time::Duration};
-use tower_http::{
-    classify::ServerErrorsFailureClass,
-    cors::{Any, CorsLayer},
-};
+use tower_http::classify::ServerErrorsFailureClass;
 use tracing::Span;
+use utoipa::{
+    openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme}, Modify,
+    OpenApi,
+};
+use utoipa_axum::router::OpenApiRouter;
 
-use crate::{api_config::AppState, utils::app_error::AppError};
+mod config;
+mod users;
+
+#[derive(OpenApi)]
+#[openapi(
+    modifiers(&SecurityAddon),
+    security(
+           // ("jwt_token" = ["read:items", "edit:items"]),
+           ("jwt_token" = [])
+       )
+)]
+struct ApiDoc;
+
+struct SecurityAddon;
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        openapi.components = Some(
+            utoipa::openapi::ComponentsBuilder::new()
+                .security_scheme(
+                    "jwt_token",
+                    SecurityScheme::Http(
+                        HttpBuilder::new()
+                            .scheme(HttpAuthScheme::Bearer)
+                            .bearer_format("JWT")
+                            .build(),
+                    ),
+                )
+                .build(),
+        );
+    }
+}
 
 pub async fn index() -> Result<impl IntoResponse, AppError> {
     Ok(Html(include_str!("../holla.txt").to_string()))
 }
 
 pub fn create_router(state: Arc<AppState>) -> Router {
-    let cors = CorsLayer::new()
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS, Method::DELETE])
-        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT])
-        .allow_origin(Any);
+    let cors = configure_cors();
 
-    let router = Router::new().route("/", get(index));
+    let (router, protected_routes) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        .nest("/api/users", users::router())
+        .layer(cors)
+        .with_state(state)
+        .split_for_parts();
 
-    let protected_routes = Router::new().layer(cors).with_state(state);
+    let swagger_handler = configure_swagger(protected_routes.clone());
 
     router
-        .merge(protected_routes)
+        .merge(swagger_handler)
+        .route("/", get(index))
         .layer(tower_http::trace::TraceLayer::new_for_http().on_failure(
             |error: ServerErrorsFailureClass, latency: Duration, _span: &Span| {
                 tracing::error!(
