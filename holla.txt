@@ -1,0 +1,18 @@
+<body style="background-color: #131516;">
+<pre style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<span style="color: red">
+
+         |~~
+                _.:^:._
+        |~  _.-'.'.'.'.'-._   |~
+       <|><|><|><|>o<|><|><|><|>
+        |__|__|__|___|__|__|__|
+        :   |    -\|_     |   :
+        : -\|_   <<,<<` -\|_  :
+        : <<.<<`   |    <<.<<`:
+        :___|______|______|___:
+  ______{=====================}______
+         Axum template by Asincole
+</span>
+</pre>
+</body>
