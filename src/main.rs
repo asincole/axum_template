@@ -8,7 +8,9 @@ use tracing::info;
 use utils::tracing_setup::setup_subscriber;
 
 mod api_config;
+mod dtos;
 mod routes;
+mod services;
 mod utils;
 
 #[tokio::main]
@@ -23,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     );
     let app = create_router(app_state);
 
-    let listener = TcpListener::bind("127.0.0.1:3000").await?;
+    let listener = TcpListener::bind("0.0.0.0:3000").await?;
 
     info!("listening on {}", listener.local_addr()?);
 

@@ -1,18 +1,20 @@
-use std::time::Duration;
-
+pub use db_config::{DbConfig};
 use anyhow::Context;
 use dotenvy::var;
+use std::time::Duration;
+
+mod db_config;
 
 /// `AppConfig` holds all configuration parameters for the application.
 ///
-/// This struct centralizes all environment-based configuration in one place,
-/// making it easier to manage application settings. This is also run very early in,
-/// the server startup and fails early if a needed config is missing. For this template project,
+/// This struct centralizes all environment-based configurations in one place,
+/// making it easier to manage application settings. This is also run very early in 
+/// the server startup and fails early if a necessary config is missing. For this template project,
 /// it contains just a sample configuration value, but in real applications,
 /// it would contain database URLs, API keys, feature flags, etc.
 #[derive(Clone)]
 pub struct AppConfig {
-    pub example_config: String,
+    pub database_url: String,
 }
 
 impl AppConfig {
@@ -23,9 +25,9 @@ impl AppConfig {
     /// easy configuration changes between different environments (dev, staging, prod)
     /// without code changes.
     pub fn from_env() -> anyhow::Result<Self> {
-        let example_config = var("EXAMPLE_CONFIG").context("EXAMPLE_CONFIG must be set")?;
+        let database_url = var("DATABASE_URL").context("DATABASE_URL must be set")?;
 
-        Ok(AppConfig { example_config })
+        Ok(AppConfig { database_url })
     }
 }
 
@@ -34,17 +36,18 @@ impl AppConfig {
 /// This struct is a core component of Axum applications, as it provides a way to share
 /// resources like database connections, HTTP clients, and configuration across different
 /// request handlers. Axum will clone this for each request, so all members should be
-/// inexpensive to clone (e.g., Arc-wrapped resources or other lightweight handles).
+/// inexpensive to clone (e.g. Arc-wrapped resources or other lightweight handles).
 #[derive(Clone)]
 pub struct AppState {
     pub http_client: reqwest::Client,
     pub config: AppConfig,
+    pub db: DbConfig,
 }
 
 impl AppState {
     /// Creates a new instance of the application state with all required resources.
     ///
-    /// This initializes all shared resources needed by route handlers, such as:
+    /// This initializes all shared resources needed by route handlers, such as
     /// - HTTP clients for external API calls
     /// - Configuration settings
     ///
@@ -52,13 +55,15 @@ impl AppState {
     /// caches, message queues, etc.
     pub async fn new() -> anyhow::Result<Self> {
         let config = AppConfig::from_env()?;
+        let db = DbConfig::new(&config.database_url).await?;
         let http_client = reqwest::Client::builder()
             .timeout(Duration::from_secs(10))
             .build()
-            .expect("Failed to create HTTP client");
+            .expect("Failed to create the HTTP client");
         Ok(Self {
             config,
             http_client,
+            db,
         })
     }
 }

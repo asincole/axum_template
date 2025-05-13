@@ -1,5 +1,6 @@
+use crate::api_config::AppState;
 use crate::routes::config::{configure_cors, configure_swagger};
-use crate::{api_config::AppState, utils::app_error::AppError};
+use crate::utils::api_error::ApiError;
 use axum::{
     response::{Html, IntoResponse},
     routing::get,
@@ -15,7 +16,7 @@ use utoipa::{
 use utoipa_axum::router::OpenApiRouter;
 
 mod config;
-mod users;
+mod users_handler;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -46,7 +47,7 @@ impl Modify for SecurityAddon {
     }
 }
 
-pub async fn index() -> Result<impl IntoResponse, AppError> {
+pub async fn index() -> Result<impl IntoResponse, ApiError> {
     Ok(Html(include_str!("../holla.txt").to_string()))
 }
 
@@ -54,7 +55,7 @@ pub fn create_router(state: Arc<AppState>) -> Router {
     let cors = configure_cors();
 
     let (router, protected_routes) = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .nest("/api/users", users::router())
+        .nest("/api/users", users_handler::router())
         .layer(cors)
         .with_state(state)
         .split_for_parts();
