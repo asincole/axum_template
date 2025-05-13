@@ -1,3 +1,4 @@
+// This is a simpler version of the error handler type for the service... `./api_error.rs` contains a version I personally prefer
 use axum::Json;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};

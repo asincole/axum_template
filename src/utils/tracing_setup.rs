@@ -1,8 +1,6 @@
-use tracing_subscriber::filter;
-
 #[cfg(debug_assertions)]
 pub fn setup_subscriber() -> impl tracing::Subscriber {
-    use tracing_subscriber::{fmt, layer::SubscriberExt};
+    use tracing_subscriber::{filter, fmt, layer::SubscriberExt};
 
     let level_filter_layer = filter::LevelFilter::INFO;
     let (filter, _) = tracing_subscriber::reload::Layer::new(level_filter_layer);
@@ -20,6 +18,7 @@ pub fn setup_subscriber() -> impl tracing::Subscriber {
 #[cfg(not(debug_assertions))]
 pub fn setup_subscriber() -> impl tracing::Subscriber {
     use tracing_bunyan_formatter::BunyanFormattingLayer;
+    use tracing_subscriber::{filter, layer::SubscriberExt};
 
     let level_filter_layer = filter::LevelFilter::INFO;
     let (filter, _) = tracing_subscriber::reload::Layer::new(level_filter_layer);
