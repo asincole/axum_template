@@ -4,21 +4,26 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.97"
-axum = { version = "0.8.1", features = ["http2", "tracing"] }
+anyhow = "1.0.98"
+axum = { version = "0.8.4", features = ["http2", "tracing"] }
+axum-valid = "0.23.0"
 dotenvy = "0.15.7"
 reqwest = "0.12.15"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
-tokio = { version = "1.44.1", features = ["macros", "rt-multi-thread"] }
-tower-http = { version = "0.6.2", features = ["cors", "compression-br", "compression-deflate", "compression-gzip", "trace"] }
+sqlx = { version = "0.8.5", features = ["bigdecimal", "derive", "json", "macros", "postgres", "runtime-tokio", "time", "tls-native-tls", "uuid"] }
+thiserror = "2.0.12"
+time = { version = "0.3.41", features = ["macros", "serde", "serde-human-readable", "serde-well-known"] }
+tokio = { version = "1.45.0", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.6.4", features = ["cors", "compression-br", "compression-deflate", "compression-gzip", "trace"] }
 tracing = "0.1.41"
 tracing-bunyan-formatter = "=0.3.10"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt"] }
-ulid = { version = "1.2.1", features = ["postgres", "serde"] }
-utoipa = { version = "5.3.1", features = ["axum_extras", "uuid", "chrono", "debug", "ulid"] }
+utoipa = { version = "5.3.1", features = ["axum_extras", "uuid", "chrono", "debug", "ulid", "time"] }
 utoipa-axum = "0.2.0"
-utoipa-swagger-ui = { version = "9.0.0", features = ["axum", "cache", "debug", "reqwest"] }
+utoipa-swagger-ui = { version = "9.0.1", features = ["axum", "cache", "debug", "reqwest"] }
+uuid = { version = "1.16.0", features = ["serde"] }
+validator = { version = "0.20.0", features = ["derive"] }
 
 [profile.dev]
 rpath = true
@@ -32,3 +37,7 @@ opt-level = 3
 #strip = "debuginfo"
 strip = "symbols"
 rpath = true
+
+[dev-dependencies]
+faux = "0.1.12"
+fake = "4.3.0"
